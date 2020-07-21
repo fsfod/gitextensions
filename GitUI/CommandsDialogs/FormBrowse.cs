@@ -124,6 +124,7 @@ namespace GitUI.CommandsDialogs
             : base(commands)
         {
             InitializeComponent();
+            Shown += OnShown;
 
             new ToolStripItem[]
             {
@@ -578,12 +579,6 @@ namespace GitUI.CommandsDialogs
 
         protected override void OnLoad(EventArgs e)
         {
-            _windowsJumpListManager.CreateJumpList(
-                Handle,
-                new WindowsThumbnailToolbarButtons(
-                    new WindowsThumbnailToolbarButton(toolStripButtonCommit.Text, toolStripButtonCommit.Image, CommitToolStripMenuItemClick),
-                    new WindowsThumbnailToolbarButton(toolStripButtonPush.Text, toolStripButtonPush.Image, PushToolStripMenuItemClick),
-                    new WindowsThumbnailToolbarButton(toolStripButtonPull.Text, toolStripButtonPull.Image, PullToolStripMenuItemClick)));
             HideVariableMainMenuItems();
             InternalInitialize(false);
 
@@ -624,6 +619,16 @@ namespace GitUI.CommandsDialogs
             RefreshSplitViewLayout();
             LayoutRevisionInfo();
             SetSplitterPositions();
+        }
+
+        private void OnShown(object sender, EventArgs e)
+        {
+            _windowsJumpListManager.CreateJumpList(
+                Handle,
+                new WindowsThumbnailToolbarButtons(
+                    new WindowsThumbnailToolbarButton(toolStripButtonCommit.Text, toolStripButtonCommit.Image, CommitToolStripMenuItemClick),
+                    new WindowsThumbnailToolbarButton(toolStripButtonPush.Text, toolStripButtonPush.Image, PushToolStripMenuItemClick),
+                    new WindowsThumbnailToolbarButton(toolStripButtonPull.Text, toolStripButtonPull.Image, PullToolStripMenuItemClick)));
         }
 
         protected override void OnActivated(EventArgs e)

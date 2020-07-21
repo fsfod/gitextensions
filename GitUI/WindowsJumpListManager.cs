@@ -4,6 +4,7 @@ using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Windows;
 using GitCommands;
 using GitCommands.UserRepositoryHistory;
 using GitCommands.Utils;
@@ -65,7 +66,7 @@ namespace GitUI
         [ContractAnnotation("workingDir:null=>halt")]
         public void AddToRecent([NotNull] string workingDir)
         {
-            if (!ToolbarButtonsCreated || !IsSupported)
+            if (!IsSupported)
             {
                 return;
             }
@@ -75,29 +76,30 @@ namespace GitUI
                 throw new ArgumentException(nameof(workingDir));
             }
 
+            string repositoryDescription = _repositoryDescriptionProvider.Get(workingDir);
+            if (string.IsNullOrWhiteSpace(repositoryDescription))
+            {
+                return;
+            }
+
+            string baseFolder = Path.Combine(AppSettings.ApplicationDataPath.Value, "Recent");
+            if (!Directory.Exists(baseFolder))
+            {
+                Directory.CreateDirectory(baseFolder);
+            }
+
+            // sanitise
+            var sb = new StringBuilder(repositoryDescription);
+            foreach (char c in Path.GetInvalidFileNameChars())
+            {
+                sb.Replace(c, '_');
+            }
+
+            string path = Path.Combine(baseFolder, $"{sb}.gitext");
+            File.WriteAllText(path, workingDir);
+
             SafeInvoke(() =>
             {
-                string repositoryDescription = _repositoryDescriptionProvider.Get(workingDir);
-                if (string.IsNullOrWhiteSpace(repositoryDescription))
-                {
-                    return;
-                }
-
-                string baseFolder = Path.Combine(AppSettings.ApplicationDataPath.Value, "Recent");
-                if (!Directory.Exists(baseFolder))
-                {
-                    Directory.CreateDirectory(baseFolder);
-                }
-
-                // sanitise
-                var sb = new StringBuilder(repositoryDescription);
-                foreach (char c in Path.GetInvalidFileNameChars())
-                {
-                    sb.Replace(c, '_');
-                }
-
-                string path = Path.Combine(baseFolder, $"{sb}.gitext");
-                File.WriteAllText(path, workingDir);
                 JumpList.AddToRecent(path);
 
                 if (!ToolbarButtonsCreated)
@@ -130,7 +132,7 @@ namespace GitUI
         /// <param name="buttons">The thumbnail toolbar buttons to be added.</param>
         public void CreateJumpList(IntPtr windowHandle, WindowsThumbnailToolbarButtons buttons)
         {
-            if (ToolbarButtonsCreated || !IsSupported || windowHandle == IntPtr.Zero)
+            if (!IsSupported || windowHandle == IntPtr.Zero)
             {
                 return;
             }
