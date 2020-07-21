@@ -120,6 +120,7 @@
             <Verb Id="open" Command="Open Git Extentions Repository" TargetFile="GitExtensions.exe" Argument="openrepo &quot;%1&quot;" />
           </Extension>
         </ProgId>
+        <RegistryValue Root="HKCR" Key="GitExtensions" Type="string" Name="AppUserModelID" Value="GitExtensions" />
         <File Id="ICSharpCode.TextEditor.dll" Name="ICSharpCode.TextEditor.dll" Source="$(var.ArtifactsPublishPath)\ICSharpCode.TextEditor.dll" />
       </Component>
       <Component Id="GitExtensions.exe.config" Guid="*">
